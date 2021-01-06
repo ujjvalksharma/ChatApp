@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>Private chat room</title>
+      <meta name = "viewport" content = "width = device-width, initial-scale = 1">      
+      <link rel = "stylesheet"
+         href = "https://fonts.googleapis.com/icon?family=Material+Icons">
+      <link rel = "stylesheet"
+         href = "https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/css/materialize.min.css">
+      <script type = "text/javascript"
+         src = "https://code.jquery.com/jquery-2.1.1.min.js"></script>           
+      <script src = "https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/js/materialize.min.js">
+      </script> 
+          <script src="/webjars/jquery/jquery.min.js"></script>
+    <script src="/webjars/sockjs-client/sockjs.min.js"></script>
+    <script src="/webjars/stomp-websocket/stomp.min.js"></script>
+      <script type="text/javascript">
+        console.log('render6');
+        var username = location.search.split('username=')[1];
+            var socket = new SockJS('/private-chat');
+    var stompClient = Stomp.over(socket);
+    stompClient.connect({}, function (frame) {
+  stompClient.subscribe('/topic/usermessage', function (userMessage) {
+            printchat(JSON.parse(userMessage.body));
+        });
+    });
+
+    function printchat(userMessage) {
+var finalMessage=userMessage.userName+':'+userMessage.userMessage;
+var myMessage='<br /><br /><div class = "chip blue accent-2" >'+finalMessage+'</div>';
+var otherMessage='<br /><br /><div class = "chip green accent-2">'+finalMessage+'</div>';
+
+ document.getElementById("message").value='';
+var element = document.getElementById("chatBody");
+ if(username===userMessage.userName){
+
+element.innerHTML += myMessage;
+
+}
+else{
+  element.innerHTML += otherMessage;
+}
+}
+
+function sendMessage() {
+ var message=document.getElementById("message").value;
+  stompClient.send("/app/message", {}, JSON.stringify
+    ({
+      'userName':username,
+      'userMessage':message
+  }));
+}
+     
+
+      </script>
+   </head>
+   
+   <body class = "container"> 
+ 
+          <br />
+                <br />
+                    <br />
+                   <center><h5>Welcome to private chat!!</h5> </center> 
+      <div class = "card-panel">
+
+              <div id="chatBody">
+              </div>
+
+                  <textarea id = "message" name="message"class = "materialize-textarea"></textarea>
+             
+     <button class = "btn waves-effect waves-light red" type = "submit" onclick="sendMessage()"> Send
+            <i class = "material-icons right">send</i></button>
+      
+  </div>
+   </body>   
+</html>
